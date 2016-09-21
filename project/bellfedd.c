@@ -30,8 +30,35 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 		exit(1);
 	}
 
-	/* read A and c files.[A - matris, c - less than] */
+    /* read A and c files.[A - matris, c - less than] */
+    int Arows, Acols, crows;
+    fscanf(afile, "%d %d", &Arows, &Acols);
+    fscanf(cfile, "%d", &crows); /*should be the same as Arows*/
+    printf("Rows = %d, Cols = %d\n", Arows, Acols);
+    int** Amatrix;
+    int* cmatrix;
+    Amatrix = calloc(Arows, sizeof(int*));
+    cmatrix = calloc(crows, sizeof(int));
+    int i;
+    for(i = 0; i<Arows; i+=1)
+        Amatrix[i] = calloc(Acols, sizeof(int));
 
+    int j, val;
+    for(i = 0; i<Arows;i = i+1){
+        for(j = 0; j<Acols; j = j+1) {
+            fscanf(afile, "%d", &val);
+            Amatrix[i][j] = val;
+            printf("Matrix value %d, %d, = %d,\n", i, j, Amatrix[i][j]);
+        }
+    }
+
+    for(i = 0; i<crows;i += 1){
+        fscanf(cfile, "%d", &val);
+        cmatrix[i] = val;
+        printf("C matrix value %d = %d \n", i, cmatrix[i]);
+    }
+    
+    
 	fclose(afile);
 	fclose(cfile);
 
