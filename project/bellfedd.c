@@ -12,7 +12,64 @@ static void done(int unused)
 	proceed = false;
 	unused = unused;
 }
-	
+
+static int fm_elim(rows, cols, a, c){
+    //kan förekomma att matrisen är större än den ska vara, därför är 
+    //rows och cols mycket viktigt för att hålla koll på vilka element
+    //som egentligen finns i matrisen. 
+    if (cols == 0){
+        return 0;
+    }
+    int i;
+    if (cols == 1){
+        double smallestUpperBound = DBL_MAX;
+        double largestLowerBound = DBL_MIN;
+        double cdiva;
+        for(i=0;i<rows;i +=1){
+            if(a[i][0] == 0){
+                if(b[i] <0) {
+                    return 0;
+                }
+            } 
+            else {
+                cdiva = c[i]/(double)a[i][0];
+                printf("b(i)/A(i,1) = %f \n", cdiva)
+                if(a[i][0] < 0){
+                    if(cdiva > largestLowerBound){
+                        largestLowerBound = cdiva;
+                    }
+                }
+                else if(a[i][0]>0){
+                    if(cdiva < smallestUpperBound){
+                        smallestUpperBound = cdiva;
+                    }
+                }
+            }
+        }
+        if(largestLowerBound <= smallestUpperBound) {
+            return 1;
+        }
+    } else {
+        int* newC;
+        int** newA;
+        int newRows=rows, newCols=cols; //de skapas att vara lika stora som innan.
+        newA = calloc(newRows, sizeof(int*));
+        for(i=0; i<newRows;i+=1){
+            newA[i] = calloc(newCols, sizeof(int));
+        }
+        newC = calloc(newRows, sizeof(int));
+        
+        //Fixa for-loopen, se till att hålla koll på hur newRows och newCols ändras.
+
+        for(i = 0; i<rows; i+=1){
+            
+        }
+        if(newRows == 0 && newCols == 0){
+            return 1;
+        }
+        return fm_elim(newRows, newCols, newA, newC);
+    }
+}
 unsigned long long bellfedd(char* aname, char* cname, int seconds)
 {
 	FILE*		afile = fopen(aname, "r");
@@ -67,8 +124,8 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 		/* Just run once for validation. */
 			
 		// Uncomment when your function and variables exist...
-		// return fm_elim(rows, cols, a, c);
-		return 1; // return one, i.e. has a solution for now...
+		return fm_elim(Arows, Acols, Amatrix, cmatrix);
+		//return 1; // return one, i.e. has a solution for now...
 	}
 
 	/* Tell operating system to call function DONE when an ALARM comes. */
