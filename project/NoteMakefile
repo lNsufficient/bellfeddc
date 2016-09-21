@@ -1,0 +1,4 @@
+följande rad raderades i makefile:
+OBJS	= main.o fast.o small.o 
+den ersattes med:
+OBJS	= main.o bellfedd.o 
