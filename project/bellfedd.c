@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
-
+#include <float.h>
 static unsigned long long	fm_count;
 static volatile bool		proceed = false;
 
@@ -13,27 +13,31 @@ static void done(int unused)
 	unused = unused;
 }
 
-static int fm_elim(rows, cols, a, c){
+static int fm_elim(int rows, int cols, int** a, int* c){
     //kan förekomma att matrisen är större än den ska vara, därför är 
     //rows och cols mycket viktigt för att hålla koll på vilka element
-    //som egentligen finns i matrisen. 
+    //som egentligen finns i matrisen.
+    int i; 
     if (cols == 0){
+        free(a);
+        free(c);
         return 0;
-    }
-    int i;
-    if (cols == 1){
+    } 
+    else if (cols == 1){
         double smallestUpperBound = DBL_MAX;
         double largestLowerBound = DBL_MIN;
         double cdiva;
         for(i=0;i<rows;i +=1){
             if(a[i][0] == 0){
-                if(b[i] <0) {
+                if(c[i] <0) {
+                    free(a);
+                    free(c);
                     return 0;
                 }
             } 
             else {
                 cdiva = c[i]/(double)a[i][0];
-                printf("b(i)/A(i,1) = %f \n", cdiva)
+                printf("b(i)/A(i,1) = %f \n", cdiva);
                 if(a[i][0] < 0){
                     if(cdiva > largestLowerBound){
                         largestLowerBound = cdiva;
@@ -46,13 +50,19 @@ static int fm_elim(rows, cols, a, c){
                 }
             }
         }
+        int returnVal;
         if(largestLowerBound <= smallestUpperBound) {
-            return 1;
+            returnVal = 1;
+        } else { //Detta var endast en gissning från Edvards sida
+            returnVal = 0;
         }
+        free(a);
+        free(c);
+        return returnVal;
     } else {
         int* newC;
         int** newA;
-        int newRows=rows, newCols=cols; //de skapas att vara lika stora som innan.
+        int j, p=-1, newRows=rows, newCols=cols; //skapas lika stora som innan.
         newA = calloc(newRows, sizeof(int*));
         for(i=0; i<newRows;i+=1){
             newA[i] = calloc(newCols, sizeof(int));
@@ -60,13 +70,45 @@ static int fm_elim(rows, cols, a, c){
         newC = calloc(newRows, sizeof(int));
         
         //Fixa for-loopen, se till att hålla koll på hur newRows och newCols ändras.
-
+        int k;
         for(i = 0; i<rows; i+=1){
-            
+            if(a[i][0] > 0){
+                for(j = 0;j<rows;j+=1){
+                    if(a[j][0] < 0) {
+                        p +=1;
+                        for(k = 1; k<cols; k+=1){
+                            newA[p][k-1] = a[i][0]*a[j][k] - a[i][k]*a[j][0];
+                        }
+                        newC[p] = a[i][0]*c[j] - a[j][0]*c[i];
+                    }    
+                } 
+            } 
+            else if(a[i][0] == 0) {
+                p +=1;
+                for(k = 1; k<cols; k+=1){
+                    newA[p][k-1] = a[i][k];
+                }
+                newC[p] = c[i];
+            } 
         }
-        if(newRows == 0 && newCols == 0){
+        if(p >= newRows){
+            printf("p is %d greater than newRows\n",p);
+        }
+        if(p > -1) {
+            newCols = cols-1;
+            newRows = p + 1;
+        }
+        else{
+            newCols = 0; //these two lines aren't neccessary, just for recognition
+            newRows = 0;
+            free(c);
+            free(a);
+            free(newA);
+            free(newC);
             return 1;
         }
+        free(a);
+        free(c);
         return fm_elim(newRows, newCols, newA, newC);
     }
 }
@@ -118,14 +160,19 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
     
 	fclose(afile);
 	fclose(cfile);
-
 	if (seconds == 0) {
        printf("inne i if seconds == 0 \n"); 
 		/* Just run once for validation. */
 			
 		// Uncomment when your function and variables exist...
-		return fm_elim(Arows, Acols, Amatrix, cmatrix);
-		//return 1; // return one, i.e. has a solution for now...
+		int returnVal;
+        returnVal = fm_elim(Arows, Acols, Amatrix, cmatrix);
+        //free(Amatrix);
+        //free(cmatrix);
+ 
+        printf("Result was: %d \n", returnVal);
+        return returnVal;
+		//return 1; //  return one, i.e. has a solution for now...
 	}
 
 	/* Tell operating system to call function DONE when an ALARM comes. */
