@@ -210,8 +210,8 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 		// Uncomment when your function and variables exist...
 		int returnVal;
         returnVal = fm_elim(Arows, Acols, Amatrix, cmatrix);
-        free(Amatrix);
-        free(cmatrix);
+        free(Amatrix); Amatrix = NULL;
+        free(cmatrix); cmatrix = NULL;
  
         printf("Result was: %d \n", returnVal);
         return returnVal;
@@ -230,6 +230,8 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 
 		fm_count++;
 	}
+    free(Amatrix); Amatrix = NULL;
+    free(cmatrix); cmatrix = NULL;
 
 	return fm_count;
 }
