@@ -19,8 +19,8 @@ static int fm_elim(int rows, int cols, int** a, int* c){
     //som egentligen finns i matrisen.
     int i; 
     if (cols == 0){
-        free(a);
-        free(c);
+        free(a); a = NULL;
+        free(c); c = NULL;
         return 0;
     } 
     else if (cols == 1){
@@ -30,8 +30,8 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         for(i=0;i<rows;i +=1){
             if(a[i][0] == 0){
                 if(c[i] <0) {
-                    free(a);
-                    free(c);
+                    free(a); a = NULL;
+                    free(c); c = NULL;
                     return 0;
                 }
             } 
@@ -56,8 +56,8 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         } else { //Detta var endast en gissning från Edvards sida
             returnVal = 0;
         }
-        free(a);
-        free(c);
+        free(a); a = NULL;
+        free(c); c = NULL;
         return returnVal;
     } else {
         int* newC;
@@ -101,14 +101,14 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         else{
             newCols = 0; //these two lines aren't neccessary, just for recognition
             newRows = 0;
-            free(c);
-            free(a);
-            free(newA);
-            free(newC);
+            free(c); c = NULL;
+            free(a); a = NULL;
+            free(newA); newA =NULL;
+            free(newC); newC = NULL;
             return 1;
         }
-        free(a);
-        free(c);
+        free(a); a = NULL;
+        free(c); c = NULL;
         return fm_elim(newRows, newCols, newA, newC);
     }
 }
