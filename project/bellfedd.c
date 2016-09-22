@@ -7,6 +7,8 @@
 static unsigned long long	fm_count;
 static volatile bool		proceed = false;
 
+//För att få tillbaka kommentarer: gvim :%s/\/\/*printf/printf/gc
+
 void* freematrix(int** a, int rows){
     int i;
     for(i = 0; i<rows; i+=1){
@@ -38,13 +40,13 @@ static int fm_elim(int rows, int cols, int** a, int* c){
     //som egentligen finns i matrisen.
     int i; 
     if (cols == 0){
-        printf("fm_elim: cols == 0\n");
+        ////*printf("fm_elim: cols == 0\n");
         //free(a); a = NULL; //free här är farligt, tappar referens utanför
         //free(c); c = NULL;
         return 0;
     } 
     else if (cols == 1){
-        printf("fm_elim: cols == 1\n");
+        //*printf("fm_elim: cols == 1\n");
         double smallestUpperBound = DBL_MAX;
         double largestLowerBound = DBL_MIN;
         double cdiva;
@@ -58,7 +60,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
             } 
             else {
                 cdiva = c[i]/(double)a[i][0];
-                printf("b(i)/A(i,1) = %f \n", cdiva);
+                //*printf("b(i)/A(i,1) = %f \n", cdiva);
                 if(a[i][0] < 0){
                     if(cdiva > largestLowerBound){
                         largestLowerBound = cdiva;
@@ -73,17 +75,17 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         }
         int returnVal;
         if(largestLowerBound <= smallestUpperBound) {
-            printf("fm_elim: largestLowerBound <= smallestUpperBound\n");
+            //*printf("fm_elim: largestLowerBound <= smallestUpperBound\n");
             returnVal = 1;
         } else { //Detta var endast en gissning från Edvards sida
-            printf("fm_elim: largestLowerBound > smallestUpperBound\n");
+            //*printf("fm_elim: largestLowerBound > smallestUpperBound\n");
             returnVal = 0;
         }
         //free(a); a = NULL; //farligt med free
         //free(c); c = NULL;
         return returnVal;
     } else {
-        printf("fm_elim: cols > 1\n");
+        //*printf("fm_elim: cols > 1\n");
         int* newC;
         int** newA;
         int j, p=-1, newRowsAlloc=rows*cols*2, newColsAlloc=cols; //skapas lika stora som innan.
@@ -135,12 +137,12 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         }
         int newCols, newRows;
         if(p > -1) {
-            printf("fm_elim: p > -1\n");
+            //*printf("fm_elim: p > -1\n");
             newCols = cols-1;
             newRows = p + 1;
         }
         else{
-            printf("fm_elim: no elements in newA\n");
+            //*printf("fm_elim: no elements in newA\n");
             newCols = 0; //these two lines aren't neccessary, just for recognition
             newRows = 0;
             //free(c); c = NULL; //dessa får vi inte ta bort
@@ -152,7 +154,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         //free(a); a = NULL;
         //free(c); c = NULL;
         int returnVal;
-        printf("fm_elim: calls for new run of fm_elim \n");
+        //*printf("fm_elim: calls for new run of fm_elim \n");
         returnVal =  fm_elim(newRows, newCols, newA, newC);
         freematrix(newA, newRowsAlloc); //newA = NULL;
         free(newC); newC = NULL;
@@ -180,8 +182,8 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
     int Arows, Acols, crows;
     fscanf(afile, "%d %d", &Arows, &Acols);
     fscanf(cfile, "%d", &crows); /*should be the same as Arows*/
-    printf("\n\n========NEW RUN========\n");
-    printf("Rows = %d, Cols = %d\n", Arows, Acols);
+    //*printf("\n\n========NEW RUN========\n");
+    //*printf("Rows = %d, Cols = %d\n", Arows, Acols);
     int** Amatrix;
     int* cmatrix;
     Amatrix = xcalloc(Arows, sizeof(int*));
@@ -191,30 +193,30 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
         Amatrix[i] = xcalloc(Acols, sizeof(int));
 
     int j, val;
-    printf("A matrix: \n");
+    //*printf("A matrix: \n");
     for(i = 0; i<Arows;i = i+1){
         for(j = 0; j<Acols; j = j+1) {
             fscanf(afile, "%d", &val);
             Amatrix[i][j] = val;
-            printf("%d\t", Amatrix[i][j]);
+            //*printf("%d\t", Amatrix[i][j]);
             //printf("Matrix value %d, %d, = %d,\n", i, j, Amatrix[i][j]);
         }
-        printf("\n");
+        //*printf("\n");
     }
     
-    printf("c matrix: \n");
+    //*printf("c matrix: \n");
     for(i = 0; i<crows;i += 1){
         fscanf(cfile, "%d", &val);
         cmatrix[i] = val;
         //printf("C matrix value %d = %d \n", i, cmatrix[i]);
-        printf("%d\n", cmatrix[i]);
+        //*printf("%d\n", cmatrix[i]);
     }
     
     
 	fclose(afile);
 	fclose(cfile);
 	if (seconds == 0) {
-       printf("inne i if seconds == 0 \n"); 
+       //*printf("inne i if seconds == 0 \n"); 
 		/* Just run once for validation. */
 			
 		// Uncomment when your function and variables exist...
