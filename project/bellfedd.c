@@ -7,6 +7,16 @@
 static unsigned long long	fm_count;
 static volatile bool		proceed = false;
 
+void* xcalloc(int nbr, size_t size) {
+    void* p = calloc(nbr, size);
+    
+    if(p == NULL) {
+        fprintf(stderr, "out of memory\n");
+        exit(1);
+    } else
+        return p;
+}
+
 static void done(int unused)
 {
 	proceed = false;
@@ -19,11 +29,13 @@ static int fm_elim(int rows, int cols, int** a, int* c){
     //som egentligen finns i matrisen.
     int i; 
     if (cols == 0){
+        printf("fm_elim: cols == 0\n");
         free(a); a = NULL;
         free(c); c = NULL;
         return 0;
     } 
     else if (cols == 1){
+        printf("fm_elim: cols == 1\n");
         double smallestUpperBound = DBL_MAX;
         double largestLowerBound = DBL_MIN;
         double cdiva;
@@ -52,30 +64,44 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         }
         int returnVal;
         if(largestLowerBound <= smallestUpperBound) {
+            printf("fm_elim: largestLowerBound <= smallestUpperBound\n");
             returnVal = 1;
         } else { //Detta var endast en gissning från Edvards sida
+            printf("fm_elim: largestLowerBound > smallestUpperBound\n");
             returnVal = 0;
         }
         free(a); a = NULL;
         free(c); c = NULL;
         return returnVal;
     } else {
+        printf("fm_elim: cols > 1\n");
         int* newC;
         int** newA;
-        int j, p=-1, newRows=rows, newCols=cols; //skapas lika stora som innan.
-        newA = calloc(newRows, sizeof(int*));
-        for(i=0; i<newRows;i+=1){
-            newA[i] = calloc(newCols, sizeof(int));
-        }
-        newC = calloc(newRows, sizeof(int));
+        int j, p=-1, newRows=rows*cols, newCols=cols; //skapas lika stora som innan.
         
+        printf("fm_elim: will try xcalloc\n");
+        newA = xcalloc(newRows, sizeof(int*));
+        printf("fm_elim: passed first xcalloc\n");
+        for(i=0; i<newRows;i+=1){
+            newA[i] = xcalloc(newCols, sizeof(int));
+        }
+        printf("fm_elim: passed second xcalloc\n");
+        newC = xcalloc(newRows, sizeof(int));
+        
+        printf("fm_elim: passed third xcalloc\n");
+
         //Fixa for-loopen, se till att hålla koll på hur newRows och newCols ändras.
+        printf("fm_elim: passed xcalloc\n");
         int k;
         for(i = 0; i<rows; i+=1){
             if(a[i][0] > 0){
                 for(j = 0;j<rows;j+=1){
                     if(a[j][0] < 0) {
                         p +=1;
+                        if(p>= newRows) {
+                            printf("fm_elim: p>= newRows\n");
+                            exit(0);
+                        }
                         for(k = 1; k<cols; k+=1){
                             newA[p][k-1] = a[i][0]*a[j][k] - a[i][k]*a[j][0];
                         }
@@ -85,6 +111,10 @@ static int fm_elim(int rows, int cols, int** a, int* c){
             } 
             else if(a[i][0] == 0) {
                 p +=1;
+                if(p>= newRows) {
+                    printf("fm_elim: p>= newRows\n");
+                    exit(0);
+                }
                 for(k = 1; k<cols; k+=1){
                     newA[p][k-1] = a[i][k];
                 }
@@ -92,13 +122,15 @@ static int fm_elim(int rows, int cols, int** a, int* c){
             } 
         }
         if(p >= newRows){
-            printf("p is %d greater than newRows\n",p);
+            printf("fm_elim: p is %d greater than newRows\n",p);
         }
         if(p > -1) {
+            printf("fm_elim: p > -1\n");
             newCols = cols-1;
             newRows = p + 1;
         }
         else{
+            printf("fm_elim: no elements in newA\n");
             newCols = 0; //these two lines aren't neccessary, just for recognition
             newRows = 0;
             free(c); c = NULL;
@@ -109,6 +141,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         }
         free(a); a = NULL;
         free(c); c = NULL;
+        printf("fm_elim: calls for new run of fm_elim \n");
         return fm_elim(newRows, newCols, newA, newC);
     }
 }
