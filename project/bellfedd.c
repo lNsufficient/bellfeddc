@@ -77,7 +77,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         printf("fm_elim: cols > 1\n");
         int* newC;
         int** newA;
-        int j, p=-1, newRows=rows*cols, newCols=cols; //skapas lika stora som innan.
+        int j, p=-1, newRows=rows*cols*2, newCols=cols; //skapas lika stora som innan.
         
         printf("fm_elim: will try xcalloc\n");
         newA = xcalloc(newRows, sizeof(int*));
@@ -166,6 +166,7 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
     int Arows, Acols, crows;
     fscanf(afile, "%d %d", &Arows, &Acols);
     fscanf(cfile, "%d", &crows); /*should be the same as Arows*/
+    printf("\n\n========NEW RUN========\n");
     printf("Rows = %d, Cols = %d\n", Arows, Acols);
     int** Amatrix;
     int* cmatrix;
