@@ -9,7 +9,7 @@ static volatile bool		proceed = false;
 
 //För att få tillbaka kommentarer: gvim :%s/\/\/*printf/printf/gc
 
-void* freematrix(int** a, int rows){
+static void* freematrix(int** a, int rows){
     int i;
     for(i = 0; i<rows; i+=1){
         free(a[i]); a[i] = NULL;
@@ -18,7 +18,7 @@ void* freematrix(int** a, int rows){
     return NULL;
 }
 
-void* xcalloc(int nbr, size_t size) {
+static void* xcalloc(int nbr, size_t size) {
     void* p = calloc(nbr, size);
     
     if(p == NULL) {
