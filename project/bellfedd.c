@@ -18,6 +18,24 @@ static void* freematrix(int** a, int rows){
     return NULL;
 }
 
+static void* copyVector(int rows, int* corig, int* ccopy) {
+    int i;
+    for(i = 0; i<rows; i+=1){
+        ccopy[i]= corig[i];
+    }
+    return NULL;
+}
+
+static void* copyMatrix(int rows, int cols, int** aorig, int** acopy) {
+    int i, j;
+    for(i = 0; i<rows; i+=1){
+        for(j = 0; j<cols; j+=1){
+            acopy[i][j] = aorig[i][j];
+        }
+    }
+    return NULL;
+}
+
 static void* xcalloc(int nbr, size_t size) {
     void* p = calloc(nbr, size);
     
@@ -38,6 +56,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
     //kan förekomma att matrisen är större än den ska vara, därför är 
     //rows och cols mycket viktigt för att hålla koll på vilka element
     //som egentligen finns i matrisen.
+    //Denna funktion ändrar värden i a och c, inte så snällt kanske.
     int i; 
     if (cols == 0){
         ////*printf("fm_elim: cols == 0\n");
@@ -189,8 +208,9 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
     Amatrix = xcalloc(Arows, sizeof(int*));
     cmatrix = xcalloc(crows, sizeof(int));
     int i;
-    for(i = 0; i<Arows; i+=1)
+    for(i = 0; i<Arows; i+=1) {
         Amatrix[i] = xcalloc(Acols, sizeof(int));
+    }
 
     int j, val;
     //*printf("A matrix: \n");
@@ -229,6 +249,17 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
         return returnVal;
 		//return 1; //  return one, i.e. has a solution for now...
 	}
+    //Förbereder kopia av matris
+    int** acopy;
+    int* ccopy;
+    acopy = xcalloc(Arows, sizeof(int*));
+    ccopy = xcalloc(crows, sizeof(int));
+    for(i = 0; i<Arows; i+=1) {
+        acopy[i] = xcalloc(Acols, sizeof(int));
+    }
+    
+    copyMatrix(Arows, Acols, Amatrix, acopy);
+    copyVector(Arows, cmatrix, ccopy);
 
 	/* Tell operating system to call function DONE when an ALARM comes. */
 	signal(SIGALRM, done);
@@ -239,12 +270,14 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 	while (proceed) {
 //        exit(0); //lade till detta för att snabbare hitta memory leak
 		// Uncomment when your function and variables exist...
-		fm_elim(Arows, Acols, Amatrix, cmatrix);
-
+		fm_elim(Arows, Acols, acopy, ccopy);
 		fm_count++;
+        copyMatrix(Arows, Acols, Amatrix, acopy);
+        copyVector(Arows, cmatrix, ccopy);
 	}
     freematrix(Amatrix, Arows); //Amatrix = NULL;
+    freematrix(acopy, Arows);
     free(cmatrix); cmatrix = NULL;
-
+    free(ccopy); ccopy = NULL; 
 	return fm_count;
 }
