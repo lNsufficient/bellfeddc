@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 			printf("\"%s\" PASSED ALL %zu TESTS.\n", 
 				fm[i].name, ntest);
             //Added exit here to check for mem leak without running full            
-            exit(0);
+//            exit(0);
             //Added by Edvard (above line)
 			for (j = 0; j < ntest; ++j) {
 				printf("Counting test %zu: ", j);
