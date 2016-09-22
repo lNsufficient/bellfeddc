@@ -7,6 +7,15 @@
 static unsigned long long	fm_count;
 static volatile bool		proceed = false;
 
+void* freematrix(int** a, int rows){
+    int i;
+    for(i = 0; i<rows; i+=1){
+        free(a[i]); a[i] = NULL;
+    }
+    free(a); a = NULL;
+    return NULL;
+}
+
 void* xcalloc(int nbr, size_t size) {
     void* p = calloc(nbr, size);
     
@@ -77,16 +86,16 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         printf("fm_elim: cols > 1\n");
         int* newC;
         int** newA;
-        int j, p=-1, newRows=rows*cols*2, newCols=cols; //skapas lika stora som innan.
+        int j, p=-1, newRowsAlloc=rows*cols*2, newColsAlloc=cols; //skapas lika stora som innan.
         
         //printf("fm_elim: will try xcalloc\n");
-        newA = xcalloc(newRows, sizeof(int*));
+        newA = xcalloc(newRowsAlloc, sizeof(int*));
         //printf("fm_elim: passed first xcalloc\n");
-        for(i=0; i<newRows;i+=1){
-            newA[i] = xcalloc(newCols, sizeof(int));
+        for(i=0; i<newRowsAlloc;i+=1){
+            newA[i] = xcalloc(newColsAlloc, sizeof(int));
         }
         //printf("fm_elim: passed second xcalloc\n");
-        newC = xcalloc(newRows, sizeof(int));
+        newC = xcalloc(newRowsAlloc, sizeof(int));
         
         //printf("fm_elim: passed third xcalloc\n");
 
@@ -98,7 +107,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
                 for(j = 0;j<rows;j+=1){
                     if(a[j][0] < 0) {
                         p +=1;
-                        if(p>= newRows) {
+                        if(p>= newRowsAlloc) {
                             printf("fm_elim: p>= newRows\n");
                             exit(0);
                         }
@@ -111,7 +120,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
             } 
             else if(a[i][0] == 0) {
                 p +=1;
-                if(p>= newRows) {
+                if(p>= newRowsAlloc) {
                     printf("fm_elim: p>= newRows\n");
                     exit(0);
                 }
@@ -121,9 +130,10 @@ static int fm_elim(int rows, int cols, int** a, int* c){
                 newC[p] = c[i];
             } 
         }
-        if(p >= newRows){
+        if(p >= newRowsAlloc){
             printf("fm_elim: p is %d greater than newRows\n",p);
         }
+        int newCols, newRows;
         if(p > -1) {
             printf("fm_elim: p > -1\n");
             newCols = cols-1;
@@ -135,7 +145,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
             newRows = 0;
             //free(c); c = NULL; //dessa får vi inte ta bort
             //free(a); a = NULL;
-            free(newA); newA =NULL; //men dessa måste bort
+            freematrix(newA, newRowsAlloc); //newA =NULL; //men dessa måste bort
             free(newC); newC = NULL;
             return 1;
         }
@@ -144,7 +154,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
         int returnVal;
         printf("fm_elim: calls for new run of fm_elim \n");
         returnVal =  fm_elim(newRows, newCols, newA, newC);
-        free(newA); newA = NULL;
+        freematrix(newA, newRowsAlloc); //newA = NULL;
         free(newC); newC = NULL;
         return returnVal;
     }
@@ -174,11 +184,11 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
     printf("Rows = %d, Cols = %d\n", Arows, Acols);
     int** Amatrix;
     int* cmatrix;
-    Amatrix = calloc(Arows, sizeof(int*));
-    cmatrix = calloc(crows, sizeof(int));
+    Amatrix = xcalloc(Arows, sizeof(int*));
+    cmatrix = xcalloc(crows, sizeof(int));
     int i;
     for(i = 0; i<Arows; i+=1)
-        Amatrix[i] = calloc(Acols, sizeof(int));
+        Amatrix[i] = xcalloc(Acols, sizeof(int));
 
     int j, val;
     printf("A matrix: \n");
@@ -210,7 +220,7 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 		// Uncomment when your function and variables exist...
 		int returnVal;
         returnVal = fm_elim(Arows, Acols, Amatrix, cmatrix);
-        free(Amatrix); Amatrix = NULL;
+        freematrix(Amatrix, Arows);// Amatrix = NULL;
         free(cmatrix); cmatrix = NULL;
  
         printf("Result was: %d \n", returnVal);
@@ -225,12 +235,13 @@ unsigned long long bellfedd(char* aname, char* cname, int seconds)
 	/* Now loop until the alarm comes... */
 	proceed = true;
 	while (proceed) {
+//        exit(0); //lade till detta för att snabbare hitta memory leak
 		// Uncomment when your function and variables exist...
 		fm_elim(Arows, Acols, Amatrix, cmatrix);
 
 		fm_count++;
 	}
-    free(Amatrix); Amatrix = NULL;
+    freematrix(Amatrix, Arows); //Amatrix = NULL;
     free(cmatrix); cmatrix = NULL;
 
 	return fm_count;
