@@ -1,0 +1,17 @@
+CPU: CPU with timer interrupt, speed 2294.79 MHz (estimated)
+Profiling through timer interrupt
+samples  %        linenr info                 symbol name
+215      37.7856  bellfedd.c:55               fm_elim
+165      28.9982  bellfedd.c:12               freematrix
+130      22.8471  bellfedd.c:39               xcalloc
+45        7.9086  bellfedd.c:29               copyMatrix
+12        2.1090  bellfedd.c:21               copyVector
+
+Ovan är resultatet av att köra
+opreport -t 1 -l -g fm 
+
+Som man ser har vi lagt mycket tid på både freematrix och xcalloc. Detta skulle kunna lösas genom effektivare minneshantering. Till exempel skapar vi matriser genom m+1 stycken calloc-anrop. Detta är så klart inte det smartaste att göra, det hade varit snabbare att köra ett calloc-anrop där vi sparar matrisen i form av en vektor istället (men vi valde att göra enklaste möjliga implementeringen). Vidare hade man inte behövt ha en c-matris, utan all data kunde sparats i A-vektorn.
+
+Väl inne i fm_elim gör vi många rekursiva anrop, och i alla dessa steg skapar vi nya matriser. Det hade förmodligen varit möjligt att spara in dessa i startmatrisen, om denna allokeras tillräckligt stor. Det finns uppenbarligen plats till detta i datorn, för vi får aldrig slut på minne, detta trots att vi hela tiden skapar för stora matriser (när vi skapar newA och newC). Angående newA och newC så hade det funnits väldigt mycket att vinna på att bara lagra allting i en stor matris. Detta eftersom att vi inte vet hur många rader newA ska vara, och alla onödiga rader ger en onödig allokering (med följd av en onödig free). En enda stor vektor till allting hade alltså varit bra. 
+
+Då oprofile körs får vi inte så detaljerad information, detta eftersom vi inte har så många underfunktioner. Ur ett optimeringssyfte hade oprofile varit mer användbart om vi hade delat upp programkoden tydligare, så att vi vet vilken underfunktion vi måste optimera. Gcov hade kunnat användas för att se hur många gånger rader körs. 
