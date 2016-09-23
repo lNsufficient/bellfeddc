@@ -1,3 +1,6 @@
+David Belfrage (tpi12dbe) och Edvard Johansson (tfy12ejo)
+
+
 CPU: CPU with timer interrupt, speed 2294.79 MHz (estimated)
 Profiling through timer interrupt
 samples  %        linenr info                 symbol name

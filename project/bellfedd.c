@@ -6,7 +6,7 @@
 #include <float.h>
 static unsigned long long	fm_count;
 static volatile bool		proceed = false;
-//Created by David Belfrage and Edvard Johansson
+//Created by David Belfrage (tpi12dbe) and Edvard Johansson (tfy12ejo)
 //För att få tillbaka kommentarer: gvim :%s/\/\/*printf/printf/gc
 
 static void* freematrix(int** a, int rows){
