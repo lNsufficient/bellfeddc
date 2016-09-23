@@ -57,7 +57,7 @@ static int fm_elim(int rows, int cols, int** a, int* c){
     //rows och cols mycket viktigt för att hålla koll på vilka element
     //som egentligen finns i matrisen.
     //Denna funktion ändrar värden i a och c, inte så snällt kanske.
-    int i; 
+    int i;     
     if (cols == 0){
         ////*printf("fm_elim: cols == 0\n");
         //free(a); a = NULL; //free här är farligt, tappar referens utanför
